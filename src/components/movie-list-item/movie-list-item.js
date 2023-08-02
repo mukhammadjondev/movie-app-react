@@ -1,10 +1,10 @@
 import './movie-list-item.css'
 
-const MovieListItem = () => {
+const MovieListItem = ({name, viewers, favourite}) => {
   return (
-    <li className="list-group-item d-flex justify-content-between">
-        <span className="list-item-group-label">Emire of Osman</span>
-        <input type="number" className="list-item-group-input" defaultValue='989'/>
+    <li className={`list-group-item d-flex justify-content-between ${favourite && 'favourite'}`}>
+        <span className="list-item-group-label">{name}</span>
+        <input type="number" className="list-item-group-input" defaultValue={viewers}/>
         <div className="d-flex justify-content-center align-item-center">
             <button type="button" className="btn-cookie btn-sm">
                 <i className="fas fa-cookie"></i>
