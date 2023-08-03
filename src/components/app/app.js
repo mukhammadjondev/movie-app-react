@@ -4,6 +4,7 @@ import SearchPanel from '../search-panel/search-panel'
 import AppFilter from '../app-filter/app-filter'
 import MovieList from '../movie-list/movie-list';
 import MoviesAddForm from '../movies-add-form/movies-add-form';
+import { v4 as uuidv4 } from 'uuid';
 
 import './app.css';
 
@@ -12,9 +13,9 @@ class App extends Component {
     super(props)
     this.state = {
       data: [
-        {name: 'Ironman', viewers: 1000, favourite: false, id: 1},
-        {name: 'Avengers', viewers: 1200, favourite: true, id: 2},
-        {name: 'DC films', viewers: 1100, favourite: false, id: 3},
+        {name: 'Ironman', viewers: 1000, favourite: false, like: false, id: 1},
+        {name: 'Avengers', viewers: 1200, favourite: false, like: false, id: 2},
+        {name: 'DC films', viewers: 1100, favourite: false, like: false, id: 3},
       ]
     }
   }
@@ -24,21 +25,35 @@ class App extends Component {
   }
 
   addForm = item => {
-    this.setState(({data}) => ({data: [ ...data, item] }) )
+    const newItem = {name: item.name, viewers: item.viewers, id: uuidv4(), favourite: false, like: false}
+    this.setState(({data}) => ({data: [ ...data, newItem] }) )
+  }
+
+  onToggleProp = (id, prop) => {
+    this.setState(({data}) => ({
+      data: data.map(item => {
+        if(item.id === id) {
+          return {...item, [prop]: !item[prop]}
+        }
+        return item
+      })
+    }))
   }
 
   render() {
     const {data} = this.state
+    const allMoviesCount = data.length
+    const favouriteMovieCount = data.filter(c => c.favourite).length
 
     return (
       <div className='app font-monospace'>
         <div className='content'>
-          <AppInfo />
+          <AppInfo allMoviesCount={allMoviesCount} favouriteMovieCount={favouriteMovieCount} />
           <div className='search-panel'>
             <SearchPanel />
             <AppFilter />
           </div>
-          <MovieList data={data} onDelete={this.onDelete} />
+          <MovieList data={data} onToggleProp={this.onToggleProp} onDelete={this.onDelete} />
           <MoviesAddForm addForm={this.addForm} />
         </div>
       </div>
