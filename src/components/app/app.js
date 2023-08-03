@@ -15,8 +15,10 @@ class App extends Component {
       data: [
         {name: 'Ironman', viewers: 1000, favourite: false, like: false, id: 1},
         {name: 'Avengers', viewers: 1200, favourite: false, like: false, id: 2},
-        {name: 'DC films', viewers: 1100, favourite: false, like: false, id: 3},
-      ]
+        {name: 'DC films', viewers: 900, favourite: false, like: false, id: 3},
+      ],
+      term: '',
+      filter: 'all'
     }
   }
 
@@ -40,20 +42,44 @@ class App extends Component {
     }))
   }
 
+  searchHendler = (arr, term) => {
+    if(term.length === 0 ){
+      return arr
+    }
+
+    return arr.filter(item => item.name.toLowerCase().indexOf(term) > -1)
+  }
+
+  filterHandler = (arr, filter) => {
+    switch (filter) {
+      case 'popular':
+        return arr.filter(c => c.like)
+      case 'mostViewers':
+        return arr.filter(c => c.viewers >= 1000)
+      default:
+        return arr
+    }
+  }
+
+  updateTermHandler = term => this.setState({term})
+
+  updateFilterHandler = filter => this.setState({filter})
+
   render() {
-    const {data} = this.state
+    const {data, term, filter} = this.state
     const allMoviesCount = data.length
     const favouriteMovieCount = data.filter(c => c.favourite).length
+    const visibleData = this.filterHandler(this.searchHendler(data, term), filter)
 
     return (
       <div className='app font-monospace'>
         <div className='content'>
           <AppInfo allMoviesCount={allMoviesCount} favouriteMovieCount={favouriteMovieCount} />
           <div className='search-panel'>
-            <SearchPanel />
-            <AppFilter />
+            <SearchPanel updateTermHandler={this.updateTermHandler} />
+            <AppFilter filter={filter} updateFilterHandler={this.updateFilterHandler} />
           </div>
-          <MovieList data={data} onToggleProp={this.onToggleProp} onDelete={this.onDelete} />
+          <MovieList data={visibleData} onToggleProp={this.onToggleProp} onDelete={this.onDelete} />
           <MoviesAddForm addForm={this.addForm} />
         </div>
       </div>
