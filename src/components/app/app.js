@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useState } from 'react';
 import AppInfo from '../app-info/app-info';
 import SearchPanel from '../search-panel/search-panel'
 import AppFilter from '../app-filter/app-filter'
@@ -8,49 +8,31 @@ import { v4 as uuidv4 } from 'uuid';
 
 import './app.css';
 
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      data: [
-        {name: 'Ironman', viewers: 1000, favourite: false, like: false, id: 1},
-        {name: 'Avengers', viewers: 1200, favourite: false, like: false, id: 2},
-        {name: 'DC films', viewers: 900, favourite: false, like: false, id: 3},
-      ],
-      term: '',
-      filter: 'all'
-    }
-  }
+const App = () => {
+  const [data, setData] = useState(arr)
+  const [term, setTerm] = useState('')
+  const [filter, setFilter] = useState('all')
 
-  onDelete = id => {
-    this.setState(({data}) => ({data: data.filter(c => c.id !== id)}))
-  }
+  function onDelete(id) {setData(data.filter(c => c.id !== id))}
 
-  addForm = item => {
+  function addForm(item) {
     const newItem = {name: item.name, viewers: item.viewers, id: uuidv4(), favourite: false, like: false}
-    this.setState(({data}) => ({data: [ ...data, newItem] }) )
+    setData([ ...data, newItem])
   }
 
-  onToggleProp = (id, prop) => {
-    this.setState(({data}) => ({
-      data: data.map(item => {
-        if(item.id === id) {
-          return {...item, [prop]: !item[prop]}
-        }
-        return item
-      })
+  function onToggleProp(id, prop) {
+    setData(data.map(item => {
+      if(item.id === id) return {...item, [prop]: !item[prop]}
+      return item
     }))
   }
 
-  searchHendler = (arr, term) => {
-    if(term.length === 0 ){
-      return arr
-    }
-
+  function searchHandler(arr, term) {
+    if(term === 0 ) return arr
     return arr.filter(item => item.name.toLowerCase().indexOf(term) > -1)
   }
 
-  filterHandler = (arr, filter) => {
+  function filterHandler(arr, filter) {
     switch (filter) {
       case 'popular':
         return arr.filter(c => c.like)
@@ -61,30 +43,29 @@ class App extends Component {
     }
   }
 
-  updateTermHandler = term => this.setState({term})
+  function updateTermHandler(term) {setTerm(term)}
 
-  updateFilterHandler = filter => this.setState({filter})
+  function updateFilterHandler(filter) {setFilter(filter)}
 
-  render() {
-    const {data, term, filter} = this.state
-    const allMoviesCount = data.length
-    const favouriteMovieCount = data.filter(c => c.favourite).length
-    const visibleData = this.filterHandler(this.searchHendler(data, term), filter)
-
-    return (
-      <div className='app font-monospace'>
-        <div className='content'>
-          <AppInfo allMoviesCount={allMoviesCount} favouriteMovieCount={favouriteMovieCount} />
-          <div className='search-panel'>
-            <SearchPanel updateTermHandler={this.updateTermHandler} />
-            <AppFilter filter={filter} updateFilterHandler={this.updateFilterHandler} />
-          </div>
-          <MovieList data={visibleData} onToggleProp={this.onToggleProp} onDelete={this.onDelete} />
-          <MoviesAddForm addForm={this.addForm} />
+  return (
+    <div className='app font-monospace'>
+      <div className='content'>
+        <AppInfo allMoviesCount={data.length} favouriteMovieCount={data.filter(c => c.favourite).length} />
+        <div className='search-panel'>
+          <SearchPanel updateTermHandler={updateTermHandler} />
+          <AppFilter filter={filter} updateFilterHandler={updateFilterHandler} />
         </div>
+        <MovieList data={filterHandler(searchHandler(data, term), filter)} onToggleProp={onToggleProp} onDelete={onDelete} />
+        <MoviesAddForm addForm={addForm} />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 export default App;
+
+const arr = [
+  {name: 'Ironman', viewers: 1000, favourite: false, like: false, id: 1},
+  {name: 'Avengers', viewers: 1200, favourite: false, like: false, id: 2},
+  {name: 'DC films', viewers: 900, favourite: false, like: false, id: 3},
+]
