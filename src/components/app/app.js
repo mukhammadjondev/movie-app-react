@@ -1,4 +1,4 @@
-import { Component, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppInfo from '../app-info/app-info';
 import SearchPanel from '../search-panel/search-panel'
 import AppFilter from '../app-filter/app-filter'
@@ -9,9 +9,10 @@ import { v4 as uuidv4 } from 'uuid';
 import './app.css';
 
 const App = () => {
-  const [data, setData] = useState(arr)
+  const [data, setData] = useState([])
   const [term, setTerm] = useState('')
   const [filter, setFilter] = useState('all')
+  const [isLoading, setIsLoading] = useState(false)
 
   function onDelete(id) {setData(data.filter(c => c.id !== id))}
 
@@ -47,6 +48,18 @@ const App = () => {
 
   function updateFilterHandler(filter) {setFilter(filter)}
 
+  useEffect(() => {
+    setIsLoading(true)
+    fetch('https://jsonplaceholder.typicode.com/todos?_start=0&_limit=5')
+      .then(response => response.json())
+      .then(json => {
+        const newArr = json.map(item => ({name: item.title, id: item.id, viewers: item.id * 10, favourite: false, like: false}))
+        setData(newArr)
+      })
+      .catch(err => console.log(err))
+      .finally(() => setIsLoading(false))
+  }, [])
+
   return (
     <div className='app font-monospace'>
       <div className='content'>
@@ -55,6 +68,7 @@ const App = () => {
           <SearchPanel updateTermHandler={updateTermHandler} />
           <AppFilter filter={filter} updateFilterHandler={updateFilterHandler} />
         </div>
+        {isLoading && "Loading..."}
         <MovieList data={filterHandler(searchHandler(data, term), filter)} onToggleProp={onToggleProp} onDelete={onDelete} />
         <MoviesAddForm addForm={addForm} />
       </div>
@@ -63,9 +77,3 @@ const App = () => {
 }
 
 export default App;
-
-const arr = [
-  {name: 'Ironman', viewers: 1000, favourite: false, like: false, id: 1},
-  {name: 'Avengers', viewers: 1200, favourite: false, like: false, id: 2},
-  {name: 'DC films', viewers: 900, favourite: false, like: false, id: 3},
-]
