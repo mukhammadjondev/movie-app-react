@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 const initialValue = {
   data: [],
   term: '',
-  filter: 'all ',
+  filter: 'all',
 }
 
 export const Context = createContext()
@@ -12,7 +12,7 @@ export const Context = createContext()
 const reducer = (state = initialValue, action) => {
   const {type, payload} = action
   switch (type) {
-    case "GET_DATA" :
+    case "GET_DATA":
       return {...state, data: payload}
     case 'ON_DELETE':
       const deleteArr = state.data.filter(c => c.id !== payload)
